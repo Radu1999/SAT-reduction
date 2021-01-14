@@ -10,6 +10,7 @@
 #include <array>
 #include <utility>
 #include <string>
+#include <vector>
 
 class Task {
  protected:

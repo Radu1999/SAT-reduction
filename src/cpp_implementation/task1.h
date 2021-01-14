@@ -17,6 +17,8 @@
 class Task1 : public Task {
  private:
     // TODO: define necessary variables and/or data structures
+    int n, m, k;
+    std::vector<std::pair<int, int>> vertices;
 
  public:
     void solve() override {
@@ -29,11 +31,29 @@ class Task1 : public Task {
 
     void read_problem_data() override {
         // TODO: read the problem input (in_filename) and store the data in the object's attributes
+        std::ifstream input(in_filename.c_str());
+        input >> n >> m >> k;
+        int v1, v2;
+        for(int i = 0; i < m; i++) {
+            input >> v1 >> v2;
+            vertices.push_back({v1, v2});
+        }
+        input.close();
     }
 
     void formulate_oracle_question() {
         // TODO: transform the current problem into a SAT problem and write it (oracle_in_filename) in a format
         //  understood by the oracle
+        std::ofstream ask_oracle(oracle_in_filename.c_str());
+        ask_oracle << "p cnf " << n * k << " " << m << "\n";
+        for(int i = 0; i < m; i++) {
+            std::string name1 = "-x" + std::to_string(vertices[i].first) + "_";
+            std::string name2 = "-x" + std::to_string(vertices[i].second) + "_";
+            for(int j = 1; j <= k; j++) {
+                ask_oracle << name1 + std::to_string(j) + " "
+                             + name2 + std::to_string(j) + "0 \n";
+            }
+        }
     }
 
     void decipher_oracle_answer() {
