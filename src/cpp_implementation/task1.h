@@ -19,6 +19,10 @@ class Task1 : public Task {
     // TODO: define necessary variables and/or data structures
     int n, m, k;
     std::vector<std::pair<int, int>> vertices;
+    std::map<int, std::string> reverse_code;
+    std::map<std::string, int> code;
+    std::string verdict;
+    std::map<int, int> solution;
 
  public:
     void solve() override {
@@ -45,23 +49,83 @@ class Task1 : public Task {
         // TODO: transform the current problem into a SAT problem and write it (oracle_in_filename) in a format
         //  understood by the oracle
         std::ofstream ask_oracle(oracle_in_filename.c_str());
-        ask_oracle << "p cnf " << n * k << " " << m << "\n";
-        for(int i = 0; i < m; i++) {
-            std::string name1 = "-x" + std::to_string(vertices[i].first) + "_";
-            std::string name2 = "-x" + std::to_string(vertices[i].second) + "_";
+        ask_oracle << "p cnf " << m * k + n << " " << n * k << "\n";
+        int available_code = 1, current_code1, current_code2;
+        std::string name1, name2;
+        for(int i = 1; i <= n; i++) {
             for(int j = 1; j <= k; j++) {
-                ask_oracle << name1 + std::to_string(j) + " "
-                             + name2 + std::to_string(j) + "0 \n";
+                name1 = std::to_string(i) + "_" + std::to_string(j);
+                code.insert({name1, available_code});
+                reverse_code.insert({available_code++, name1});
             }
         }
+
+        //making sure 2 neighbours dont have same spy
+        for(int i = 0; i < m; i++) {
+            name1 = std::to_string(vertices[i].first) + "_";
+            name2 = std::to_string(vertices[i].second) + "_";
+            for(int j = 1; j <= k; j++) {
+
+                current_code1 = code.find(name1 + std::to_string(j))->second;
+                current_code2 = code.find(name2 + std::to_string(j))->second;
+                ask_oracle << -current_code1 << " " << -current_code2 <<" 0\n";
+            }
+        }
+        //making sure each family has at least a spy
+        for(int i = 1; i <= n; i++) {
+            for(int j = 1; j <= k; j++) {
+                ask_oracle << code.find(std::to_string(i) + "_" + std::to_string(j))->second
+                            <<" ";
+            }
+            ask_oracle << "0 \n";
+        }
+    
+        ask_oracle.close();
     }
 
     void decipher_oracle_answer() {
         // TODO: extract the current problem's answer from the answer given by the oracle (oracle_out_filename)
+        std::ifstream oracle_out(oracle_out_filename.c_str());
+        std::string possible;
+        oracle_out >> verdict;
+        if(!verdict.compare("True")) {
+            int size, value, split;
+            oracle_out >> size;
+            std::string name, vertix_name, spy_name;
+            for(int i = 0; i < size; i++) {
+                oracle_out >> value;
+                if(value > 0) {
+                    name = reverse_code.find(value)->second;
+                    vertix_name = "";
+                    spy_name = "";
+                    split = 0;
+                    for(int j = 0; j < name.size(); j++) {
+                        if(name[j] == '_') {
+                            split = 1;
+                        } else if(!split) {
+                            vertix_name += name[j];
+                        } else {
+                            spy_name += name[j];
+                        }
+                    }
+                    solution.insert({std::stoi(vertix_name), std::stoi(spy_name)});
+                }
+            }
+        }
+        oracle_out.close();
     }
 
     void write_answer() override {
-        // TODO: write the answer to the current problem (out_filename)
+        //TODO: write the answer to the current problem (out_filename)
+        std::ofstream output(out_filename.c_str());
+        output << verdict << "\n";
+        if(!verdict.compare("True")) {
+            for(int i = 1; i <= n; i++) {
+                output << solution.find(i)->second << " ";
+            }
+        }
+        output.close();
+        
     }
 };
 

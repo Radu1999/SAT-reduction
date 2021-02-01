@@ -1,0 +1,38 @@
+Chivereanu Radu-Gabriel 325 CA
+
+Task1:
+	Pentru rezolvarea taskului 1 am facut reducerea la SAT folosindu-ma de
+variabile de tipul i_j care inseamna "nodul i are spionul j".
+	De observat ca problema este de fapt k-colorare.
+	Conditiile de tranzitie sunt urmatoarele:
+	1. Oricare 2 noduri cu muchie intre ele nu pot avea 
+un spion comun. (v, w) apartine E => clauza pentru SAT -v_i -w_i 0, pt oricare 
+i de la 1 la k
+	2. trebuie ca fiecare familie sa aiba un spion => clauza sat
+	-v_1 -v_2 .... -v_k 0 pentru v de la 1 la n
+	Pentru a codifica am folosit 2 map-uri, 1 care retine codificarea si celalat care contine inversul codificarii, pentru a putea decodifica.
+
+Task2:
+	Al doilea task este de fapt k-clique: Sa se gaseasca o clica de dimensiune k.
+	Am folosit codificarea si clauzele din permanent: v_i : nodul v este al i-lea in clica.
+
+Task3:
+	Task3 se reduce la Task2.
+	Dupa ce minimizam numarul de familii, cele ramase nu pot avea legaturi de 
+prietenie. Aceasta lipsa de legaturi s-ar putea traduce astfel: pe graful inversat,
+familiile ramase sa formeze o clica. Deci ajungem la concluzia ca familiile ramase 
+vor fi cele ce formeaza o clica maximala pe graful inversat.
+	Asadar am inversat de la citire graful, si am folosit cautare binara pentru a gasi nr maxim pentru care task2 are rezolvare.
+
+Bonus:
+	Bonusul este mai simplu decat task3, intrucat am putut folosi reducere
+la weighted SAT. Suma ponderilor S este in cazul meu n. Am codat astfel-> i : nodul i se afla in clica maximala.
+	Clauzele hard au fost cele ce se asigurau ca 2 noduri ce nu au muchie
+intre ele pe graful inversat nu se pot gasi in clica maximala a grafului inversat.
+	n+1 -i -j 0 pentru i,j noduri nu au muchie in graful inversat
+	Clauzele soft sunt in numar de n si au ponderi egale de 1, in sensul ca 
+ne va interesa sa fie cat mai multe noduri in clica pt a fi maxima.
+	1 i i 0 pentru i de la 1 la n
+
+	
+
